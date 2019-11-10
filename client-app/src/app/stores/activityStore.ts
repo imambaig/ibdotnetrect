@@ -2,21 +2,36 @@ import { observable, action, computed, configure, runInAction } from "mobx";
 import { createContext, SyntheticEvent } from "react";
 import { IActivity } from "../models/activity";
 import agent from "../api/agent";
-import { array } from "prop-types";
 configure({ enforceActions: "always" });
 class ActivityStore {
   @observable title = "hello from mox";
   @observable activityRegistry = new Map();
-  @observable activities: IActivity[] = [];
-  @observable selectedActivity: IActivity | undefined;
-  @observable editMode = false;
+  @observable activity: IActivity | null = null;
   @observable loadingInitial = false;
   @observable submitting = false;
   @observable target = "";
 
   @computed get activitiesByDate() {
-    return Array.from(this.activityRegistry.values()).sort(
+    return this.groupActivitiesByDate(
+      Array.from(this.activityRegistry.values())
+    );
+  }
+
+  groupActivitiesByDate(activities: IActivity[]) {
+    const sortedActivitites = activities.sort(
       (a, b) => Date.parse(a.date) - Date.parse(b.date)
+    );
+    return Object.entries(
+      sortedActivitites.reduce(
+        (activities, activity) => {
+          const date = activity.date.split("T")[0];
+          activities[date] = activities[date]
+            ? [...activities[date], activity]
+            : [activity];
+          return activities;
+        },
+        {} as { [key: string]: IActivity[] }
+      )
     );
   }
 
@@ -29,24 +44,45 @@ class ActivityStore {
           activity.date = activity.date.split(".")[0];
           this.activityRegistry.set(activity.id, activity);
         });
+        this.loadingInitial = false;
       });
-
-      this.loadingInitial = false;
     } catch (error) {
       runInAction("loading activities error", () => {
         this.loadingInitial = false;
+        console.log(error);
       });
-      console.log(error);
+    }
+  };
+  @action loadActivity = async (id: string) => {
+    let activity = this.getActivity(id);
+    if (activity) {
+      this.activity = activity;
+    } else {
+      this.loadingInitial = true;
+      try {
+        activity = await agent.Activities.details(id);
+        runInAction("loadActivity", () => {
+          this.activity = activity;
+          this.loadingInitial = false;
+        });
+      } catch (error) {
+        console.log(error);
+        runInAction("loadActivity error", () => {
+          this.loadingInitial = false;
+        });
+      }
     }
   };
 
+  getActivity = (id: string) => {
+    return this.activityRegistry.get(id);
+  };
   @action createActivity = async (activity: IActivity) => {
     this.submitting = true;
     try {
       await agent.Activities.create(activity);
       runInAction("create activities", () => {
         this.activityRegistry.set(activity.id, activity);
-        this.editMode = false;
         this.submitting = false;
       });
     } catch (error) {
@@ -62,8 +98,7 @@ class ActivityStore {
       await agent.Activities.update(activity);
       runInAction("edit activity", () => {
         this.activityRegistry.set(activity.id, activity);
-        this.selectedActivity = activity;
-        this.editMode = false;
+        this.activity = activity;
         this.submitting = false;
       });
     } catch (error) {
@@ -72,6 +107,10 @@ class ActivityStore {
         this.submitting = false;
       });
     }
+  };
+
+  @action clearActivity = () => {
+    this.activity = null;
   };
 
   @action deleteActivity = async (
@@ -97,26 +136,19 @@ class ActivityStore {
   };
 
   @action openCreateForm = () => {
-    this.editMode = true;
-    this.selectedActivity = undefined;
+    this.activity = null;
   };
 
   @action openEditForm = (id: string) => {
     this.selectActivity = this.activityRegistry.get(id);
-    this.editMode = true;
   };
 
   @action cancleSelectedActivity = () => {
-    this.selectedActivity = undefined;
-  };
-
-  @action cancelFormOpen = () => {
-    this.editMode = false;
+    this.activity = null;
   };
 
   @action selectActivity = (id: string) => {
-    this.selectedActivity = this.activityRegistry.get(id);
-    this.editMode = false;
+    this.activity = this.activityRegistry.get(id);
   };
 }
 
