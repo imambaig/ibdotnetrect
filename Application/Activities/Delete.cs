@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 using MediatR;
 using Persistence;
 using Domain;
+using Application.Errors;
+using System.Net;
+
 namespace Application.Activities
 {
     public class Delete
@@ -28,7 +31,7 @@ namespace Application.Activities
             {
                 var activity = await _context.Activities.FindAsync(request.Id);
                 if (activity == null)
-                    throw new Exception("Cound not find activity to delete");
+                    throw new RestException(HttpStatusCode.NotFound, new { activity = "Not Found" });
                 _context.Remove(activity);
 
                 var success = await _context.SaveChangesAsync() > 0;
