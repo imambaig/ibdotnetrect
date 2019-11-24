@@ -4,10 +4,10 @@ import ActivityStore from '../../../app/stores/activityStore'
 import { Link } from "react-router-dom";
 import { IActivity } from '../../../app/models/activity';
 import { format } from 'date-fns';
+import { RootStoreContext } from '../../../app/stores/rootStore';
 
 const ActivittListItem: React.FC<{ activity: IActivity }> = ({ activity }) => {
-    const activityStore = useContext(ActivityStore);
-    const { activitiesByDate, selectActivity, deleteActivity, submitting, target } = activityStore;
+
     return (
         <Segment.Group>
             <Segment>
