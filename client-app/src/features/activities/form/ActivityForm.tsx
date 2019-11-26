@@ -19,11 +19,12 @@ import { RootStoreContext } from '../../../app/stores/rootStore';
 const validate = combineValidators({
     title: isRequired({ message: 'The event title is required' }),
     category: isRequired({ message: 'The event category is required' }),
-    description: composeValidators(
+    /*description: composeValidators(
         isRequired('Description',
             hasLengthGreaterThan(4)({ message: 'Description needsd to be atleast 5 characters' }))
 
-    ),
+    ),*/
+    description: hasLengthGreaterThan(4)({ message: 'Description needsd to be atleast 5 characters' }),
     city: isRequired({ message: 'The event city is required' }),
     venue: isRequired({ message: 'The event venue is required' }),
     date: isRequired({ message: 'The event date is required' }),
