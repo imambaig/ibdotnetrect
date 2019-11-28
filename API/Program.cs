@@ -40,6 +40,7 @@ namespace API
                 }
             }
             host.Run();
+
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>

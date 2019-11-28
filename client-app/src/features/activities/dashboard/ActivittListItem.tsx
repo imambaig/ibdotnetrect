@@ -1,10 +1,8 @@
-import React, { useContext } from 'react'
-import { Item, Button, Label, Segment, SegmentGroup, Icon } from 'semantic-ui-react'
-import ActivityStore from '../../../app/stores/activityStore'
+import React from 'react'
+import { Item, Button, Label, Segment, Icon } from 'semantic-ui-react'
 import { Link } from "react-router-dom";
 import { IActivity } from '../../../app/models/activity';
 import { format } from 'date-fns';
-import { RootStoreContext } from '../../../app/stores/rootStore';
 import ActivityListItemAtendees from './ActivityListItemAtendees'
 
 const ActivittListItem: React.FC<{ activity: IActivity }> = ({ activity }) => {
@@ -14,12 +12,12 @@ const ActivittListItem: React.FC<{ activity: IActivity }> = ({ activity }) => {
             <Segment>
                 <Item.Group>
                     <Item >
-                        <Item.Image size='tiny' circular src={host.image || '/assets/user.png'} />
+                        <Item.Image size='tiny' circular src={host.image || '/assets/user.png'} style={{ marginBottom: 3 }} />
                         <Item.Content>
                             <Item.Header as={Link} to={`/activities/${activity.id}`}>{activity.title}</Item.Header>
 
                             <Item.Description>
-                                Hosted By {host.displayName}
+                                Hosted By <Link to={`/profile/${host.username}`}> {host.displayName}</Link>
                             </Item.Description>
                             {activity.isHost &&
                                 <Item.Description>

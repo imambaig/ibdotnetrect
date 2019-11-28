@@ -1,5 +1,3 @@
-import { object } from "prop-types";
-
 export interface IActivity {
   id: string;
   title: string;
