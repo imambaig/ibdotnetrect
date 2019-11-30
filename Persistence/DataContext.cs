@@ -20,6 +20,8 @@ namespace Persistence
 
         public DbSet<Photo> Photo { get; set; }
 
+        public DbSet<Comment> Comment { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
