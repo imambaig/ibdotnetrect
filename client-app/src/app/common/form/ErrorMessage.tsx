@@ -10,6 +10,7 @@ interface IProps {
 
 const ErrorMessage: React.FC<IProps> = ({ error, text }) => {
     console.log(error);
+    console.log(process.env.REACT_APP_API_URL);
     return (
 
         <Message error>

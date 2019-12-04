@@ -34,7 +34,9 @@ export default class userStore {
       const user = await agent.User.register(values);
       this.rootStore.commonStore.setToken(user.token);
       this.rootStore.modalStore.closeModal();
+      console.log("afte closeModal");
       history.push("/activities");
+      console.log('afte history.push("/activities")');
     } catch (error) {
       console.log(error);
       throw error;
