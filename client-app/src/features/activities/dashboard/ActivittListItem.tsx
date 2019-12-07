@@ -6,7 +6,8 @@ import { format } from 'date-fns';
 import ActivityListItemAtendees from './ActivityListItemAtendees'
 
 const ActivittListItem: React.FC<{ activity: IActivity }> = ({ activity }) => {
-    const host = activity.userActivities.filter(x => x.isHost)[0];
+    const host = activity.attendees.filter(x => x.isHost)[0];
+    console.log(activity.attendees);
     return (
         <Segment.Group>
             <Segment>
@@ -38,7 +39,7 @@ const ActivittListItem: React.FC<{ activity: IActivity }> = ({ activity }) => {
                 <Icon name='marker' />{activity.venue},{activity.city}
             </Segment>
             <Segment secondary>
-                <ActivityListItemAtendees attendees={activity.userActivities} />
+                <ActivityListItemAtendees attendees={activity.attendees} />
             </Segment>
 
             <Segment clearing>

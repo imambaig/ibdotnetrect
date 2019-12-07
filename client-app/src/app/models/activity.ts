@@ -1,6 +1,6 @@
-export interface IActivitiesEnvelope{
-  activities:IActivity[];
-  activityCount:number;
+export interface IActivitiesEnvelope {
+  activities: IActivity[];
+  activityCount: number;
 }
 export interface IActivity {
   id: string;
@@ -12,7 +12,7 @@ export interface IActivity {
   venue: string;
   isGoing: boolean;
   isHost: boolean;
-  userActivities: IAttendee[];
+  attendees: IAttendee[];
   comments: IComment[];
 }
 export interface IComment {

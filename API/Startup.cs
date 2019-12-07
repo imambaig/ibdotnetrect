@@ -31,6 +31,7 @@ using Infrastructure.Photos;
 using Microsoft.AspNetCore.Internal;
 using API.SignalR;
 using Application.Profiles;
+using Microsoft.Extensions.Hosting;
 
 namespace API
 {
@@ -67,7 +68,7 @@ namespace API
             services.AddDbContext<DataContext>(opt =>
             {
                 opt.UseLazyLoadingProxies();
-                opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
+                opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
             services.AddCors(Options =>
             {
@@ -79,13 +80,12 @@ namespace API
             services.AddMediatR(typeof(List.Handler).Assembly);
             services.AddAutoMapper(typeof(List.Handler));
             services.AddSignalR();
-            services.AddMvc(Options =>
+            services.AddControllers(Options =>
             {
                 var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
                 Options.Filters.Add(new AuthorizeFilter(policy));
             })
-                .AddFluentValidation(cfg => cfg.RegisterValidatorsFromAssemblyContaining<Create>())
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+                .AddFluentValidation(cfg => cfg.RegisterValidatorsFromAssemblyContaining<Create>());
 
             var builder = services.AddIdentityCore<AppUser>();
             var identityBuilder = new IdentityBuilder(builder.UserType, builder.Services);
@@ -129,7 +129,7 @@ namespace API
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseMiddleware<ErrorHandlingMiddleware>();// should be always onthe top
             if (env.IsDevelopment())
@@ -139,7 +139,8 @@ namespace API
             else
             {
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
+
+
             }
             app.UseXContentTypeOptions();
             app.UseReferrerPolicy(op => op.NoReferrer());
@@ -159,24 +160,22 @@ namespace API
             app.UseDefaultFiles();
             app.UseStaticFiles();
 
-            app.UseAuthentication();
+            app.UseRouting();
             app.UseCors("CorsPolicy");
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapHub<ChatHub>("/chat");
+                endpoints.MapFallbackToController("Index", "Fallback");
+            });
+
             //app.UseHttpsRedirection();
-            app.UseSignalR(routes =>
-            {
-                routes.MapHub<ChatHub>("/chat");
-            });
-            app.UseMvc(routes =>
-            {
-                routes.MapSpaFallbackRoute(
-                   name: "spa-fallback",
-                   defaults: new { controller = "Fallback", action = "Index" });
-            });
-            /* app.useEndPoints()
-             app.UseEndpoints(endpoints =>{
-                 endpoints.MapControllers();
-                 endpoints.MapHub<ChatHub>("/chat");
-             });*/
+
+
         }
     }
 }

@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Persistence;
 using Microsoft.AspNetCore.Identity;
 using Domain;
+using Microsoft.Extensions.Hosting;
 
 namespace API
 {
@@ -20,7 +21,7 @@ namespace API
     {
         public static void Main(string[] args)
         {
-            var host = CreateWebHostBuilder(args).Build();
+            var host = CreateHostBuilder(args).Build();
 
             using (var scope = host.Services.CreateScope())
             {
@@ -43,11 +44,14 @@ namespace API
 
         }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                //.UseKestrel(x => x.AddServerHeader = false)
-                .ConfigureKestrel(x => x.AddServerHeader = false)
-                .UseStartup<Startup>();
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args).ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseStartup<Startup>();
+            });
+        //.UseKestrel(x => x.AddServerHeader = false)
+        // .ConfigureKestrel(x => x.AddServerHeader = false)
+        // .UseStartup<Startup>();
     }
 }
 

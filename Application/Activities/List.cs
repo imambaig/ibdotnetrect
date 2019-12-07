@@ -76,11 +76,12 @@ namespace Application.Activities
                 var activities = await queryable
                                 .Skip(request.Offset ?? 0)
                                 .Take(request.Limit ?? 3).ToListAsync();
-                return new ActivitiesEnvelop
+                var rtn = new ActivitiesEnvelop
                 {
                     Activities = _mapper.Map<List<Activity>, List<ActivityDto>>(activities),
                     ActivityCount = queryable.Count()
                 };
+                return rtn;
             }
         }
     }
